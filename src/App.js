@@ -4,6 +4,7 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'styles/global.scss'
+import '@fancyapps/ui/dist/fancybox.css'
 
 AOS.init()
 

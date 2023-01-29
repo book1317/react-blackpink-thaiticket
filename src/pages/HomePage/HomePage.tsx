@@ -3,12 +3,14 @@ import './homePage.scss'
 import heroBannerM from 'images/herobanner-m.jpg'
 import ttmLogo from 'images/ttm-logo-txt-white.png'
 import flagTh from 'images/flag-th.svg'
-import seatmap from 'images/seatmap-thumb.jpg'
+import seatMapThumb from 'images/seatmap-thumb.jpg'
+import seatMap from 'images/seatmap.jpg'
+import { Fancybox } from '@fancyapps/ui/'
 
 let maxFilter = 14.3
 let maxOpacity = 1.43
 let maxFilterScrollY = 140
-let activeHeaderScrollY = 200
+let activeHeaderScrollY = 400
 
 function HomePage() {
     const [bgEffect, setBgEffect] = useState({
@@ -18,32 +20,45 @@ function HomePage() {
     const [isOpenMenu, setIsOpenMenu] = useState(false)
     const [isActiveHeader, setIsActiveHeader] = useState(false)
 
-    function calBgFilterAndOpacity() {
-        setBgEffect({
-            filter: (maxFilter * window.scrollY) / maxFilterScrollY,
-            opacity: (maxOpacity * window.scrollY) / maxFilterScrollY,
-        })
-    }
-
-    function handleScrollY() {
-        if (window.scrollY < maxFilterScrollY) {
-            calBgFilterAndOpacity()
+    useEffect(() => {
+        function calBgFilterAndOpacity() {
+            const scrollY =
+                window.scrollY > maxFilterScrollY
+                    ? maxFilterScrollY
+                    : window.scrollY
+            setBgEffect({
+                filter: (maxFilter * scrollY) / maxFilterScrollY,
+                opacity: (maxOpacity * scrollY) / maxFilterScrollY,
+            })
         }
 
-        if (window.scrollY > activeHeaderScrollY) {
-            setIsActiveHeader(true)
-        } else {
-            if (isActiveHeader) {
-                setIsActiveHeader(false)
+        function handleScrollY() {
+            if (window.scrollY < maxFilterScrollY) {
+                calBgFilterAndOpacity()
+            }
+
+            if (window.scrollY > activeHeaderScrollY) {
+                setIsActiveHeader(true)
+            } else {
+                if (isActiveHeader) {
+                    setIsActiveHeader(false)
+                }
             }
         }
-    }
 
-    useEffect(() => {
         calBgFilterAndOpacity()
         window.addEventListener('scroll', handleScrollY)
         return () => window.removeEventListener('scroll', handleScrollY)
-    }, [])
+    }, [isActiveHeader])
+
+    function showFancyBox() {
+        Fancybox.show([
+            {
+                src: seatMap,
+                type: 'image',
+            },
+        ])
+    }
 
     return (
         <div className="home-page">
@@ -214,12 +229,16 @@ function HomePage() {
                 <div className="col-lg-10" data-aos="fade-up">
                     <h2>ผังที่นั่ง</h2>
                     <div className="bg-black rounded">
-                        <a
-                            href="assets/img/seatmap.jpg?v=3"
+                        <div
                             className="rounded-top d-block hv-img-zoom"
+                            onClick={showFancyBox}
                         >
-                            <img className="mx-auto" src={seatmap} alt="" />
-                        </a>
+                            <img
+                                className="mx-auto"
+                                src={seatMapThumb}
+                                alt=""
+                            />
+                        </div>
                         <a
                             href="https://goo.gl/maps/a3bLS7c2XdmUutY67"
                             className="place-link d-block text-white p-3 text-center text-muted"
