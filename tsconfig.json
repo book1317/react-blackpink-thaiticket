@@ -4,7 +4,7 @@
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
         "sourceMap": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "baseUrl": "src",
         "plugins": [{ "name": "typescript-plugin-css-modules" }]
     },
