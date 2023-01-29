@@ -8,6 +8,7 @@ import seatmap from 'images/seatmap-thumb.jpg'
 let maxFilter = 14.3
 let maxOpacity = 1.43
 let maxFilterScrollY = 140
+let activeHeaderScrollY = 200
 
 function HomePage() {
     const [bgEffect, setBgEffect] = useState({
@@ -15,28 +16,40 @@ function HomePage() {
         opacity: 0,
     })
     const [isOpenMenu, setIsOpenMenu] = useState(false)
+    const [isActiveHeader, setIsActiveHeader] = useState(false)
 
     function calBgFilterAndOpacity() {
+        setBgEffect({
+            filter: (maxFilter * window.scrollY) / maxFilterScrollY,
+            opacity: (maxOpacity * window.scrollY) / maxFilterScrollY,
+        })
+    }
+
+    function handleScrollY() {
         if (window.scrollY < maxFilterScrollY) {
-            setBgEffect({
-                filter: (maxFilter * window.scrollY) / maxFilterScrollY,
-                opacity: (maxOpacity * window.scrollY) / maxFilterScrollY,
-            })
+            calBgFilterAndOpacity()
+        }
+
+        if (window.scrollY > activeHeaderScrollY) {
+            setIsActiveHeader(true)
+        } else {
+            if (isActiveHeader) {
+                setIsActiveHeader(false)
+            }
         }
     }
 
     useEffect(() => {
-        window.addEventListener('scroll', () => {
-            calBgFilterAndOpacity()
-        })
-    })
+        calBgFilterAndOpacity()
+        window.addEventListener('scroll', handleScrollY)
+        return () => window.removeEventListener('scroll', handleScrollY)
+    }, [])
 
     return (
         <div className="home-page">
             <div className="bgImage" />
 
-            <header className="header">
-                <div></div>
+            <header className={`header ${isActiveHeader && 'active'}`}>
                 <div className="navBar">
                     <div
                         onClick={() => {
@@ -52,7 +65,7 @@ function HomePage() {
                     </a>
 
                     <div
-                        className={`midSection d-lg-block ${
+                        className={`midSection d-lg-flex ${
                             isOpenMenu && 'active'
                         }`}
                     >
@@ -198,17 +211,29 @@ function HomePage() {
                     <div className="pinkLine" data-aos="fade-up" />
                 </div>
 
-                <div className="col-lg-10">
+                <div className="col-lg-10" data-aos="fade-up">
                     <h2>ผังที่นั่ง</h2>
-                    <div className="bg-black rounded overflow-hidden">
+                    <div className="bg-black rounded">
                         <a
                             href="assets/img/seatmap.jpg?v=3"
                             className="rounded-top d-block hv-img-zoom"
                         >
-                            <img src={seatmap} alt="" />
+                            <img className="mx-auto" src={seatmap} alt="" />
+                        </a>
+                        <a
+                            href="https://goo.gl/maps/a3bLS7c2XdmUutY67"
+                            className="place-link d-block text-white p-3 text-center text-muted"
+                        >
+                            สนามกีฬาแห่งชาติ (สนามศุภชลาศัย)
                         </a>
                     </div>
                 </div>
+
+                <div className="col-lg-10 py-5" data-aos="fade-up">
+                    <h2>รายละเอียด</h2>
+                </div>
+
+                <div style={{ height: '100vh' }}></div>
             </div>
         </div>
     )
