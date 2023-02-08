@@ -21,9 +21,11 @@ function HomePage() {
     const [isOpenMenu, setIsOpenMenu] = useState(false)
     const [isActiveHeader, setIsActiveHeader] = useState(false)
     const [currentSection, setCurrentSection] = useState('')
-    const introElem = document.getElementById('intro')
-    const ticketElem = document.getElementById('ticket')
-    const detailElem = document.getElementById('detail')
+    const [scrollElement, setScrollElement] = useState({
+        intro: document.getElementById('intro'),
+        ticket: document.getElementById('ticket'),
+        detail: document.getElementById('detail'),
+    })
 
     useEffect(() => {
         function calBgFilterAndOpacity() {
@@ -35,19 +37,6 @@ function HomePage() {
                 filter: (maxFilter * scrollY) / maxFilterScrollY,
                 opacity: (maxOpacity * scrollY) / maxFilterScrollY,
             })
-        }
-
-        function setCurrentMenu() {
-            const ticketScroll = ticketElem?.getBoundingClientRect().top
-            const detailScroll = detailElem?.getBoundingClientRect().top
-
-            if (detailScroll < 50) {
-                setCurrentSection('detail')
-            } else if (ticketScroll < 50) {
-                setCurrentSection('ticket')
-            } else {
-                setCurrentSection('intro')
-            }
         }
 
         function handleScrollY() {
@@ -62,16 +51,55 @@ function HomePage() {
                     setIsActiveHeader(false)
                 }
             }
-
-            setCurrentMenu()
         }
 
         calBgFilterAndOpacity()
-        setCurrentMenu()
 
-        window.addEventListener('scroll', handleScrollY)
-        return () => window.removeEventListener('scroll', handleScrollY)
-    }, [isActiveHeader, ticketElem, detailElem])
+        window.addEventListener('scroll', handleScrollY, true)
+        return () => window.removeEventListener('scroll', handleScrollY, true)
+    }, [isActiveHeader])
+
+    function setCurrentMenu() {
+        console.log('check')
+        const { ticket, detail } = scrollElement
+        const ticketScroll = ticket?.getBoundingClientRect().top
+        const detailScroll = detail?.getBoundingClientRect().top
+
+        if (detailScroll < 50) {
+            if (currentSection !== 'detail') {
+                setCurrentSection('detail')
+            }
+        } else if (ticketScroll < 50) {
+            if (currentSection !== 'ticket') {
+                setCurrentSection('ticket')
+            }
+        } else {
+            if (currentSection !== 'intro') {
+                setCurrentSection('intro')
+            }
+        }
+    }
+
+    useEffect(() => {
+        console.log('effect')
+
+        setScrollElement({
+            intro: document.getElementById('intro'),
+            ticket: document.getElementById('ticket'),
+            detail: document.getElementById('detail'),
+        })
+        setCurrentMenu()
+        window.addEventListener('scroll', setCurrentMenu, true)
+        return () => window.removeEventListener('scroll', setCurrentMenu, true)
+        // return () => console.log('return')
+    }, [])
+
+    async function onClickMenu(menu: string) {
+        window.removeEventListener('scroll', setCurrentMenu, true)
+        scrollElement[menu].scrollIntoView()
+        setCurrentSection(menu)
+        //   await  waitForScrollTo(menu)
+    }
 
     function showFancyBox() {
         Fancybox.show([
@@ -81,6 +109,10 @@ function HomePage() {
             },
         ])
     }
+
+    // const { value: listeners } =
+    //     Object.getOwnPropertyDescriptors(window).onscroll
+    // console.log(listeners)
 
     return (
         <div className="home-page">
@@ -111,8 +143,7 @@ function HomePage() {
                                 currentSection === 'intro' && 'active'
                             }`}
                             onClick={() => {
-                                introElem.scrollIntoView()
-                                setCurrentSection('intro')
+                                onClickMenu('intro')
                             }}
                         >
                             BORN PINK
@@ -122,8 +153,7 @@ function HomePage() {
                                 currentSection === 'ticket' && 'active'
                             }`}
                             onClick={() => {
-                                ticketElem.scrollIntoView()
-                                setCurrentSection('ticket')
+                                onClickMenu('ticket')
                             }}
                         >
                             ซื้อบัตร
@@ -133,8 +163,7 @@ function HomePage() {
                                 currentSection === 'detail' && 'active'
                             }`}
                             onClick={() => {
-                                detailElem.scrollIntoView()
-                                setCurrentSection('detail')
+                                onClickMenu('detail')
                             }}
                         >
                             รายละเอียด
